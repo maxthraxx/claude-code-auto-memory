@@ -17,6 +17,26 @@ Claude Code users struggle with context management across sessions. CLAUDE.md fi
 
 Developers manually update CLAUDE.md files, which is time-consuming and often forgotten.
 
+## Baseline: Claude Code's /init Command
+
+Claude Code includes a built-in `/init` command that generates CLAUDE.md files. Our `/memory-init` command builds upon this baseline with enhanced capabilities.
+
+**Reference**: See `docs/reference/init-command-prompt.md` for the captured /init prompt.
+
+**Key /init behaviors**:
+- Analyzes codebase structure
+- Extracts build/test commands
+- Documents high-level architecture
+- Integrates Cursor/Copilot rules if present
+- Includes relevant README content
+
+**Limitations addressed by /memory-init**:
+- No automatic updates after initial generation
+- No subtree support for monorepos
+- No auto-managed markers for selective updates
+- No git history analysis
+- No pattern detection persistence
+
 ## Solution
 
 A Claude Code plugin that automatically maintains CLAUDE.md files using a token-efficient architecture:
@@ -39,6 +59,21 @@ A Claude Code plugin that automatically maintains CLAUDE.md files using a token-
 ### 1. Intelligent Initialization (`/memory-init`)
 
 **User Story**: As a developer, I want to quickly set up auto-managed CLAUDE.md files so I don't have to manually create and maintain them.
+
+**Baseline Enhancement**: Builds upon Claude Code's `/init` command with additional capabilities.
+
+| Capability | /init | /memory-init |
+|------------|-------|--------------|
+| Build commands extraction | Yes | Yes + auto-updates |
+| Architecture documentation | Basic | Comprehensive |
+| Cursor/Copilot rules | Imports if exist | Imports if exist |
+| README integration | Imports if exist | Imports if exist |
+| Subtree CLAUDE.md support | No | Yes (auto-detected) |
+| Auto-managed markers | No | Yes |
+| Pattern detection | One-time | Persistent, AI-powered |
+| Git insights | No | Yes |
+| Best practices | No | Live fetch from docs.claude.com |
+| Token budget awareness | No | Yes (150-200 lines) |
 
 **Functionality**:
 - Interactive wizard that analyzes the codebase
@@ -94,10 +129,14 @@ A Claude Code plugin that automatically maintains CLAUDE.md files using a token-
 **User Story**: As a developer working in a monorepo, I want subdirectory-specific CLAUDE.md files so each module has its own context.
 
 **Functionality**:
-- AI infers when to create subtree CLAUDE.md files
-- Heuristics: significant file count, distinct frameworks, architectural boundaries
-- Creates subtree templates automatically
+- Detects subtree candidates at framework boundaries:
+  - `src/` - Source code root (10+ files)
+  - `lib/` - Library code
+  - `packages/*` - Monorepo packages
+  - `apps/*` - Monorepo applications
+- Creates subtree CLAUDE.md with lighter template (50-75 lines)
 - Maintains consistency between root and subtree documentation
+- User approves subtree locations before creation
 
 **Acceptance Criteria**:
 - Subtrees created only when genuinely needed (no noise)
@@ -118,6 +157,8 @@ A Claude Code plugin that automatically maintains CLAUDE.md files using a token-
 - Sync command handles large projects efficiently
 
 ## Auto-Managed Sections
+
+**Token Budget**: Root CLAUDE.md targets 150-200 lines; subtrees target 50-75 lines. This keeps the files concise while providing comprehensive context.
 
 All CLAUDE.md files include marker-based sections:
 

@@ -58,6 +58,18 @@
 - Skill invocation: ~500+ tokens (detailed processing instructions)
 - If no processing needed: skill instructions never load
 
+## Reference: Claude Code /init Baseline
+
+This plugin enhances Claude Code's built-in `/init` command. The captured baseline prompt is documented at:
+
+- `docs/reference/init-command-prompt.md` - Raw /init prompt and analysis
+
+**Key differences from baseline**:
+- **Markers**: We use `<!-- AUTO-MANAGED: section -->` markers for selective updates
+- **Subtrees**: We support hierarchical CLAUDE.md for monorepos
+- **Persistence**: Updates happen automatically via hooks, not just at init
+- **Token awareness**: Templates designed to stay within 150-200 lines (root) / 50-75 lines (subtree)
+
 ## Plugin Structure
 
 ```
@@ -294,11 +306,15 @@ Analyze project structure and generate CLAUDE.md files.
 1. Check for existing CLAUDE.md - ask user how to handle (migrate/backup/merge/cancel)
 2. Scan directory structure, detect frameworks (package.json, Makefile, etc.)
 3. Extract build commands from config files
-4. Identify subtree candidates (src/, lib/, api/)
+4. **Identify subtree candidates at framework boundaries**:
+   - `src/` - Source code with 10+ files
+   - `lib/` - Library code
+   - `packages/*` - Each package in monorepo
+   - `apps/*` - Each app in monorepo
 5. Detect code patterns and conventions
-6. Fetch best practices from docs.claude.com
+6. Fetch best practices from docs.claude.com (live)
 7. Present findings to user for approval
-8. Generate CLAUDE.md files using templates
+8. Generate CLAUDE.md files using templates (respect token budgets: 150-200 root, 50-75 subtree)
 ```
 
 **User Interactions** (handled within skill):
@@ -399,20 +415,26 @@ Read .claude/.dirty-files and last update times. Display:
 **Templates**:
 
 **Root Template** (`CLAUDE.root.md.template`):
+
+**Target**: 150-200 lines
+
 ```markdown
-# Project: {{PROJECT_NAME}}
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 <!-- AUTO-MANAGED: project-description -->
+## Overview
 {{DESCRIPTION}}
 <!-- END AUTO-MANAGED -->
 
 <!-- AUTO-MANAGED: build-commands -->
-## Build Commands
+## Build & Development Commands
 {{BUILD_COMMANDS}}
 <!-- END AUTO-MANAGED -->
 
 <!-- AUTO-MANAGED: architecture -->
-## Architecture Overview
+## Architecture
 {{ARCHITECTURE}}
 <!-- END AUTO-MANAGED -->
 
@@ -426,27 +448,31 @@ Read .claude/.dirty-files and last update times. Display:
 {{PATTERNS}}
 <!-- END AUTO-MANAGED -->
 
-<!-- AUTO-MANAGED: best-practices -->
-## Best Practices
-{{BEST_PRACTICES}}
-<!-- END AUTO-MANAGED -->
-
 <!-- AUTO-MANAGED: git-insights -->
 ## Git Insights
 {{GIT_INSIGHTS}}
 <!-- END AUTO-MANAGED -->
 
+<!-- AUTO-MANAGED: best-practices -->
+## Best Practices
+{{BEST_PRACTICES}}
+<!-- END AUTO-MANAGED -->
+
 <!-- MANUAL -->
 ## Custom Notes
-Add your custom notes here. This section will never be auto-modified.
+Add project-specific notes here. This section is never auto-modified.
 <!-- END MANUAL -->
 ```
 
 **Subtree Template** (`CLAUDE.subtree.md.template`):
+
+**Target**: 50-75 lines
+
 ```markdown
 # Module: {{MODULE_NAME}}
 
 <!-- AUTO-MANAGED: module-description -->
+## Purpose
 {{DESCRIPTION}}
 <!-- END AUTO-MANAGED -->
 
@@ -456,12 +482,17 @@ Add your custom notes here. This section will never be auto-modified.
 <!-- END AUTO-MANAGED -->
 
 <!-- AUTO-MANAGED: conventions -->
-## Module Conventions
+## Module-Specific Conventions
 {{CONVENTIONS}}
 <!-- END AUTO-MANAGED -->
 
+<!-- AUTO-MANAGED: dependencies -->
+## Key Dependencies
+{{DEPENDENCIES}}
+<!-- END AUTO-MANAGED -->
+
 <!-- MANUAL -->
-## Module Notes
+## Notes
 <!-- END MANUAL -->
 ```
 
@@ -553,14 +584,15 @@ Content that will never be touched by the plugin
 ```
 
 **Supported section names**:
-- `project-description`
-- `build-commands`
-- `architecture`
-- `conventions`
-- `patterns`
-- `best-practices`
-- `git-insights`
-- `module-description` (subtrees only)
+- `project-description` - Project overview and purpose
+- `build-commands` - Build, test, lint commands
+- `architecture` - Directory structure, key components
+- `conventions` - Coding standards, naming patterns
+- `patterns` - AI-detected coding patterns
+- `best-practices` - From docs.claude.com
+- `git-insights` - Decisions from commit history
+- `module-description` (subtrees only) - Module purpose
+- `dependencies` (subtrees only) - Key module dependencies
 
 ## Performance Considerations
 
