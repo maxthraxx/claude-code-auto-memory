@@ -148,7 +148,7 @@ A Claude Code plugin that automatically maintains CLAUDE.md files using a token-
 **User Story**: As a developer, I want to manually trigger updates and check status when needed.
 
 **Functionality**:
-- `/memory-sync` - Force recalibration of all CLAUDE.md files
+- `/memory-calibrate` - Force recalibration of all CLAUDE.md files
 - `/memory-status` - View last sync time, detected patterns, processing queue
 
 **Acceptance Criteria**:
@@ -231,7 +231,7 @@ All CLAUDE.md files include marker-based sections:
 - `stop_hook_active` flag prevents infinite loops
 - No external dependencies or cloud services required
 
-**Reliability Note:** Per Claude Code documentation, the Stop hook's `reason` field guides Claude's behavior but "effectiveness depends on prompt quality rather than guaranteed compliance." The `/memory-sync` command provides a manual fallback if automatic updates don't trigger.
+**Reliability Note:** Per Claude Code documentation, the Stop hook's `reason` field guides Claude's behavior but "effectiveness depends on prompt quality rather than guaranteed compliance." The `/memory-calibrate` command provides a manual fallback if automatic updates don't trigger.
 
 ## Scope
 

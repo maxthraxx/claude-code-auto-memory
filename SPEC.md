@@ -13,10 +13,10 @@
 │  │  │  Commands   │  │    Agents     │  │      Hooks        │  │ │
 │  │  │             │  │               │  │                   │  │ │
 │  │  │ memory-init │  │ memory-       │  │ post-tool-use     │  │ │
-│  │  │ memory-sync │  │ updater       │  │ (Edit|Write)      │  │ │
-│  │  │ memory-     │  │ (orchestrator)│  │       │           │  │ │
-│  │  │ status      │  │       │       │  │       ▼           │  │ │
-│  │  │             │  │       ▼       │  │ .dirty-files      │  │ │
+│  │  │ memory-     │  │ updater       │  │ (Edit|Write)      │  │ │
+│  │  │  calibrate  │  │ (orchestrator)│  │       │           │  │ │
+│  │  │ memory-     │  │       │       │  │       ▼           │  │ │
+│  │  │  status     │  │       ▼       │  │ .dirty-files      │  │ │
 │  │  └─────────────┘  │ ┌───────────┐ │  │       │           │  │ │
 │  │                   │ │  Skills   │ │  │       ▼           │  │ │
 │  │                   │ │           │ │  │ stop hook         │  │ │
@@ -86,7 +86,7 @@ claude-code-memory/
 │   │   └── memory-updater.md   # Lightweight orchestrator agent
 │   │
 │   ├── skills/                  # Skills with progressive disclosure
-│   │   ├── memory-processor/   # Processing skill (used by agent + /memory-sync)
+│   │   ├── memory-processor/   # Processing skill (used by agent + /memory-calibrate)
 │   │   │   └── SKILL.md        # Detailed processing instructions
 │   │   │
 │   │   └── codebase-analyzer/  # Analysis skill (used by /memory-init)
@@ -94,7 +94,7 @@ claude-code-memory/
 │   │
 │   ├── commands/                # Slash commands (lightweight, invoke skills)
 │   │   ├── memory-init.md      # Invokes codebase-analyzer skill
-│   │   ├── memory-sync.md      # Invokes memory-processor skill
+│   │   ├── memory-calibrate.md # Invokes memory-processor skill
 │   │   └── memory-status.md    # Simple status (no skill needed)
 │   │
 │   └── hooks/                   # Event-driven scripts
@@ -209,7 +209,7 @@ EOF
 
 **Loop Prevention**: The `stop_hook_active` flag is set to `true` when Claude spawns the agent. When the stop hook fires again after agent completion, it reads this flag and passes through.
 
-**Reliability Note**: Per Claude Code documentation, the `reason` field guides Claude's behavior but "effectiveness depends on prompt quality rather than guaranteed compliance." The explicit instruction format ("Use the Task tool to spawn...") maximizes compliance, but users should be aware that `/memory-sync` provides a manual fallback.
+**Reliability Note**: Per Claude Code documentation, the `reason` field guides Claude's behavior but "effectiveness depends on prompt quality rather than guaranteed compliance." The explicit instruction format ("Use the Task tool to spawn...") maximizes compliance, but users should be aware that `/memory-calibrate` provides a manual fallback.
 
 ### 3. Agent: memory-updater (Lightweight Orchestrator)
 
@@ -344,9 +344,9 @@ Invoke codebase-analyzer skill. Ask user to confirm before writing files.
 
 **Progressive Disclosure**: Detailed wizard logic loads only when codebase-analyzer skill is invoked.
 
-### 7. Command: /memory-sync (Lightweight)
+### 7. Command: /memory-calibrate (Lightweight)
 
-**File**: `.claude-plugin/commands/memory-sync.md`
+**File**: `.claude-plugin/commands/memory-calibrate.md`
 
 **Purpose**: Force recalibration of all CLAUDE.md files
 
@@ -355,7 +355,7 @@ Invoke codebase-analyzer skill. Ask user to confirm before writing files.
 **Command Definition** (~30 tokens):
 ```markdown
 ---
-name: memory-sync
+name: memory-calibrate
 description: Force recalibration of CLAUDE.md files
 ---
 

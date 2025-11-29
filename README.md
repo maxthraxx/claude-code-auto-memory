@@ -70,12 +70,12 @@ The wizard will:
 4. Present findings for your approval
 5. Generate CLAUDE.md with auto-managed sections
 
-### `/memory-sync`
+### `/memory-calibrate`
 
 Force a full recalibration of all CLAUDE.md files.
 
 ```
-/memory-sync
+/memory-calibrate
 ```
 
 ### `/memory-status`
@@ -88,7 +88,42 @@ Show current sync status and pending changes.
 
 ## How It Works
 
-### Architecture
+```mermaid
+sequenceDiagram
+    participant User
+    participant Claude as Claude Code
+    participant PostHook as PostToolUse Hook
+    participant DirtyFiles as .dirty-files
+    participant StopHook as Stop Hook
+    participant Agent as memory-updater Agent
+    participant Skill as memory-processor Skill
+
+    User->>Claude: Edit files
+    Claude->>PostHook: Edit/Write operation
+    PostHook->>DirtyFiles: Append file path (zero tokens)
+    Note over PostHook: No output - pure tracking
+
+    User->>Claude: Continue working...
+    Claude->>PostHook: More edits
+    PostHook->>DirtyFiles: Append paths
+
+    Note over Claude: Turn ends
+    Claude->>StopHook: End of turn
+    StopHook->>DirtyFiles: Check for dirty files
+
+    alt Dirty files exist
+        StopHook->>Agent: Spawn isolated agent
+        Agent->>Skill: Invoke memory-processor
+        Skill->>Skill: Analyze changes
+        Skill->>Skill: Update CLAUDE.md sections
+        Agent-->>StopHook: Complete
+        StopHook->>DirtyFiles: Clear processed files
+    else No dirty files
+        Note over StopHook: No action needed
+    end
+```
+
+### Architecture Overview
 
 ```
 PostToolUse Hook (Edit|Write)
@@ -179,7 +214,7 @@ claude-code-memory/
 │   └── codebase-analyzer/    # Init wizard
 ├── commands/
 │   ├── memory-init.md
-│   ├── memory-sync.md
+│   ├── memory-calibrate.md
 │   └── memory-status.md
 └── tests/
 ```

@@ -125,9 +125,9 @@ class TestCommandsConfiguration:
         """memory-init command exists."""
         assert (commands_dir / "memory-init.md").exists()
 
-    def test_memory_sync_exists(self, commands_dir):
-        """memory-sync command exists."""
-        assert (commands_dir / "memory-sync.md").exists()
+    def test_memory_calibrate_exists(self, commands_dir):
+        """memory-calibrate command exists."""
+        assert (commands_dir / "memory-calibrate.md").exists()
 
     def test_memory_status_exists(self, commands_dir):
         """memory-status command exists."""
