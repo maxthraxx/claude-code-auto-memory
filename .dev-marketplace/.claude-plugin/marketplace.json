@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "name": "claude-code-memory",
+      "name": "auto-memory",
       "source": "./../../"
     }
   ]

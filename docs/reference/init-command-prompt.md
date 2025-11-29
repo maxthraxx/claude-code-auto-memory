@@ -46,7 +46,7 @@ The `/init` command instructs Claude to:
    - Include relevant README.md content
 6. **Handle existing CLAUDE.md** - Suggest improvements if one exists
 
-## Use Case for claude-code-memory
+## Use Case for auto-memory
 
 This prompt serves as a reference for implementing the `/memory-init` command, which should produce similar quality output but with automatic maintenance capabilities.
 

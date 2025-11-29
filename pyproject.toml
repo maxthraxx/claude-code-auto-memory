@@ -1,5 +1,5 @@
 [project]
-name = "claude-code-memory"
+name = "claude-code-auto-memory"
 version = "1.0.0"
 description = "Automatically maintains CLAUDE.md files as codebases evolve"
 readme = "README.md"

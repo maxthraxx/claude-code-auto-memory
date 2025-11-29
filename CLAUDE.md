@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- AUTO-MANAGED: project-description -->
 ## Overview
 
-Claude Code Memory plugin - automatically maintains CLAUDE.md files as codebases evolve. Tagline: "Your CLAUDE.md, always in sync. Zero tokens. Zero config. Just works."
+auto-memory plugin - automatically maintains CLAUDE.md files as codebases evolve. Tagline: "Your CLAUDE.md, always in sync. Zero tokens. Zero config. Just works."
 
 Watches what you edit, delete, and move, then quietly updates project documentation in the background. Uses PostToolUse hooks to track Edit/Write/Bash operations (including rm, mv, git rm, git mv, unlink), stores changes in .dirty-files, then triggers isolated memory-updater agent to process and update documentation sections with detected patterns, conventions, and architecture insights. Zero manual maintenance needed.
 
@@ -27,7 +27,7 @@ Watches what you edit, delete, and move, then quietly updates project documentat
 ## Architecture
 
 ```
-claude-code-memory/
+claude-code-auto-memory/
 ├── scripts/           # Python hook scripts
 │   ├── post-tool-use.py  # Tracks edited files to .claude/.dirty-files
 │   └── stop.py           # Blocks stop if dirty files exist, triggers memory-updater

@@ -1,4 +1,4 @@
-# claude-code-memory
+# claude-code-auto-memory
 
 **Your CLAUDE.md, always in sync.** Zero tokens. Zero config. Just works.
 
@@ -22,7 +22,7 @@ CLAUDE.md files become stale as codebases evolve:
 
 ## The Solution
 
-claude-code-memory automatically updates CLAUDE.md when you make changes - with **zero token overhead** in your main conversation.
+claude-code-auto-memory automatically updates CLAUDE.md when you make changes - with **zero token overhead** in your main conversation.
 
 ```
 You edit code -> Plugin tracks changes -> Isolated agent updates docs -> Context stays fresh
@@ -43,17 +43,17 @@ You edit code -> Plugin tracks changes -> Isolated agent updates docs -> Context
 
 ```bash
 claude plugin marketplace add severity1/claude-code-marketplace
-claude plugin install claude-code-memory@claude-code-marketplace
+claude plugin install auto-memory@claude-code-marketplace
 ```
 
 ### Local Development
 
 ```bash
 # Add local marketplace
-claude plugin marketplace add /path/to/claude-code-memory/.dev-marketplace/.claude-plugin/marketplace.json
+claude plugin marketplace add /path/to/claude-code-auto-memory/.dev-marketplace/.claude-plugin/marketplace.json
 
 # Install from local
-claude plugin install claude-code-memory@local-dev
+claude plugin install auto-memory@local-dev
 ```
 
 ## Commands
@@ -202,7 +202,7 @@ uv run mypy .
 ### Project Structure
 
 ```
-claude-code-memory/
+claude-code-auto-memory/
 ├── .claude-plugin/
 │   └── plugin.json           # Plugin metadata
 ├── hooks/
@@ -222,9 +222,9 @@ claude-code-memory/
 └── tests/
 ```
 
-## Why claude-code-memory?
+## Why claude-code-auto-memory?
 
-| Feature | claude-code-memory | Other Solutions |
+| Feature | claude-code-auto-memory | Other Solutions |
 |---------|-------------------|-----------------|
 | Token overhead | **Zero** | Hook output adds tokens |
 | External deps | **None** | SQLite, Vector DBs, Workers |

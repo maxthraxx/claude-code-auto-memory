@@ -1,1 +1,1 @@
-# Tests for claude-code-memory plugin
+# Tests for auto-memory plugin

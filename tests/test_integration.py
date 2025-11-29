@@ -1,4 +1,4 @@
-"""Integration tests for claude-code-memory plugin."""
+"""Integration tests for auto-memory plugin."""
 import json
 import re
 from pathlib import Path
@@ -43,7 +43,7 @@ class TestPluginConfiguration:
 
     def test_plugin_name(self, plugin_json):
         """Plugin has correct name."""
-        assert plugin_json["name"] == "claude-code-memory"
+        assert plugin_json["name"] == "auto-memory"
 
     def test_plugin_version_format(self, plugin_json):
         """Version follows semver format."""
