@@ -52,12 +52,14 @@ claude-code-auto-memory/
 <!-- AUTO-MANAGED: conventions -->
 ## Code Conventions
 
-- **Python**: Target Python 3.9+, use type hints
-- **Line length**: 100 characters max
-- **Imports**: Sorted with isort (ruff I rules)
+- **Python**: Target Python 3.9+, use type hints, strict mypy mode
+- **Line length**: 100 characters max (ruff configuration)
+- **Linting**: Use ruff (E, F, I, N, W, UP rules)
+- **Imports**: Sorted alphabetically (ruff I rules)
 - **Naming**: snake_case for functions/variables, PascalCase for classes
 - **Docstrings**: Triple-quoted, describe purpose at module/function level
-- **Testing**: pytest with test_ prefix, use tmp_path fixture for temp files
+- **Testing**: pytest with test_ prefix and `test_*` function names, fixtures in conftest or test class methods
+- **Type checking**: Enabled with mypy in strict mode
 
 <!-- END AUTO-MANAGED -->
 
