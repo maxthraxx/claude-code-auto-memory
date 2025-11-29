@@ -76,9 +76,9 @@ class TestHooksConfiguration:
         assert "Stop" in hooks_json["hooks"]
 
     def test_post_tool_use_matcher(self, hooks_json):
-        """PostToolUse hook has Edit|Write matcher."""
+        """PostToolUse hook has Edit|Write|Bash matcher."""
         post_tool_use = hooks_json["hooks"]["PostToolUse"][0]
-        assert post_tool_use["matcher"] == "Edit|Write"
+        assert post_tool_use["matcher"] == "Edit|Write|Bash"
 
 
 class TestAgentConfiguration:

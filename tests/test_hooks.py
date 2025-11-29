@@ -17,15 +17,28 @@ SCRIPTS_DIR = Path(__file__).parent.parent / "scripts"
 class TestPostToolUseHook:
     """Tests for post-tool-use.py hook."""
 
+    def _make_tool_input(self, file_path: str, tool_name: str = "Edit") -> str:
+        """Create JSON input for post-tool-use hook (Edit/Write tools)."""
+        return json.dumps({
+            "tool_name": tool_name,
+            "tool_input": {"file_path": file_path},
+        })
+
+    def _make_bash_input(self, command: str) -> str:
+        """Create JSON input for Bash tool."""
+        return json.dumps({
+            "tool_name": "Bash",
+            "tool_input": {"command": command},
+        })
+
     def test_creates_dirty_file(self, tmp_path):
         """Hook creates .claude/.dirty-files if it doesn't exist."""
-        env = {
-            "CLAUDE_PROJECT_DIR": str(tmp_path),
-            "CLAUDE_FILE_PATHS": "/path/to/file.py",
-        }
+        file_path = str(tmp_path / "file.py")
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
         result = subprocess.run(
             [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
             env={**os.environ, **env},
+            input=self._make_tool_input(file_path),
             capture_output=True,
             text=True,
         )
@@ -37,62 +50,224 @@ class TestPostToolUseHook:
         """Hook appends file paths to dirty file."""
         dirty_file = tmp_path / ".claude" / ".dirty-files"
         dirty_file.parent.mkdir(parents=True)
-        dirty_file.write_text("/existing/file.py\n")
+        existing_file = str(tmp_path / "existing" / "file.py")
+        dirty_file.write_text(existing_file + "\n")
 
-        env = {
-            "CLAUDE_PROJECT_DIR": str(tmp_path),
-            "CLAUDE_FILE_PATHS": "/new/file.py",
-        }
+        new_file = str(tmp_path / "new" / "file.py")
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
         subprocess.run(
             [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
             env={**os.environ, **env},
+            input=self._make_tool_input(new_file),
             capture_output=True,
+            text=True,
         )
         content = dirty_file.read_text()
-        assert "/existing/file.py" in content
-        assert "/new/file.py" in content
+        assert existing_file in content
+        assert new_file in content
 
     def test_no_output(self, tmp_path):
         """Hook produces no output (zero token cost)."""
-        env = {
-            "CLAUDE_PROJECT_DIR": str(tmp_path),
-            "CLAUDE_FILE_PATHS": "/path/to/file.py",
-        }
+        file_path = str(tmp_path / "file.py")
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
         result = subprocess.run(
             [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
             env={**os.environ, **env},
+            input=self._make_tool_input(file_path),
             capture_output=True,
             text=True,
         )
         assert result.stdout == ""
         assert result.stderr == ""
 
-    def test_handles_missing_env_vars(self):
-        """Hook exits gracefully when env vars are missing."""
+    def test_handles_missing_input(self):
+        """Hook exits gracefully when input is missing."""
         result = subprocess.run(
             [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
             env={},
+            input="{}",
             capture_output=True,
             text=True,
         )
         assert result.returncode == 0
 
-    def test_handles_multiline_paths(self, tmp_path):
-        """Hook handles multiple file paths separated by newlines."""
-        env = {
-            "CLAUDE_PROJECT_DIR": str(tmp_path),
-            "CLAUDE_FILE_PATHS": "/file1.py\n/file2.py\n/file3.py",
-        }
+    def test_excludes_claude_directory(self, tmp_path):
+        """Hook excludes files in .claude/ directory."""
+        file_path = str(tmp_path / ".claude" / "state.json")
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
         subprocess.run(
             [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
             env={**os.environ, **env},
+            input=self._make_tool_input(file_path),
             capture_output=True,
+            text=True,
         )
         dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert not dirty_file.exists()
+
+    def test_excludes_claude_md(self, tmp_path):
+        """Hook excludes CLAUDE.md files."""
+        file_path = str(tmp_path / "CLAUDE.md")
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_tool_input(file_path),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert not dirty_file.exists()
+
+    def test_excludes_files_outside_project(self, tmp_path):
+        """Hook excludes files outside project directory."""
+        file_path = "/outside/project/file.py"
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_tool_input(file_path),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert not dirty_file.exists()
+
+    # Bash command tracking tests
+
+    def test_tracks_rm_command(self, tmp_path):
+        """Hook tracks files from rm command."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_bash_input("rm file.py"),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert dirty_file.exists()
         content = dirty_file.read_text()
-        assert "/file1.py" in content
-        assert "/file2.py" in content
-        assert "/file3.py" in content
+        assert "file.py" in content
+
+    def test_tracks_rm_with_flags(self, tmp_path):
+        """Hook tracks files from rm -rf command."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_bash_input("rm -rf src/old_module"),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert dirty_file.exists()
+        content = dirty_file.read_text()
+        assert "old_module" in content
+
+    def test_tracks_rm_multiple_files(self, tmp_path):
+        """Hook tracks multiple files from rm command."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_bash_input("rm file1.py file2.py file3.py"),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert dirty_file.exists()
+        content = dirty_file.read_text()
+        assert "file1.py" in content
+        assert "file2.py" in content
+        assert "file3.py" in content
+
+    def test_tracks_git_rm_command(self, tmp_path):
+        """Hook tracks files from git rm command."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_bash_input("git rm obsolete.py"),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert dirty_file.exists()
+        content = dirty_file.read_text()
+        assert "obsolete.py" in content
+
+    def test_tracks_mv_source(self, tmp_path):
+        """Hook tracks source file from mv command."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_bash_input("mv old_name.py new_name.py"),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert dirty_file.exists()
+        content = dirty_file.read_text()
+        assert "old_name.py" in content
+        # Should NOT track destination
+        assert content.count("new_name.py") == 0 or "old_name.py" in content
+
+    def test_tracks_unlink_command(self, tmp_path):
+        """Hook tracks files from unlink command."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_bash_input("unlink temp.txt"),
+            capture_output=True,
+            text=True,
+        )
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert dirty_file.exists()
+        content = dirty_file.read_text()
+        assert "temp.txt" in content
+
+    def test_ignores_non_file_bash_commands(self, tmp_path):
+        """Hook ignores Bash commands that don't modify files."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+
+        # Test various non-file commands
+        non_file_commands = [
+            "git status",
+            "ls -la",
+            "cat file.py",
+            "npm install",
+            "python --version",
+            "echo hello",
+            "grep pattern file.py",
+        ]
+
+        for cmd in non_file_commands:
+            subprocess.run(
+                [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+                env={**os.environ, **env},
+                input=self._make_bash_input(cmd),
+                capture_output=True,
+                text=True,
+            )
+
+        dirty_file = tmp_path / ".claude" / ".dirty-files"
+        assert not dirty_file.exists()
+
+    def test_bash_no_output(self, tmp_path):
+        """Hook produces no output for Bash commands (zero token cost)."""
+        env = {"CLAUDE_PROJECT_DIR": str(tmp_path)}
+        result = subprocess.run(
+            [sys.executable, SCRIPTS_DIR / "post-tool-use.py"],
+            env={**os.environ, **env},
+            input=self._make_bash_input("rm file.py"),
+            capture_output=True,
+            text=True,
+        )
+        assert result.stdout == ""
+        assert result.stderr == ""
 
 
 class TestStopHook:

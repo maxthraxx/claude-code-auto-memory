@@ -2,58 +2,102 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+<!-- AUTO-MANAGED: project-description -->
+## Overview
 
-claude-code-memory is a Claude Code plugin that automatically maintains CLAUDE.md files as codebases evolve. The plugin uses a token-efficient architecture with hooks to track file changes and an isolated agent to process updates without bloating the main conversation context.
+Claude Code Memory plugin - automatically maintains CLAUDE.md files as codebases evolve. Uses hooks to track file changes and agents to update documentation sections with detected patterns, conventions, and architecture insights.
 
-## Current Status
+<!-- END AUTO-MANAGED -->
 
-This project is in the **design phase** - only PRD.md and SPEC.md exist. Implementation has not started.
+<!-- AUTO-MANAGED: build-commands -->
+## Build & Development Commands
 
+- `uv sync` - Install dependencies (uses uv package manager)
+- `uv run pytest` - Run test suite
+- `uv run pytest tests/test_hooks.py -v` - Run specific test file
+- `uv run ruff check .` - Lint code
+- `uv run ruff format .` - Format code
+- `uv run mypy .` - Type checking
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: architecture -->
 ## Architecture
 
-The plugin uses a multi-stage pipeline:
-
-1. **PostToolUse hook** (Edit|Write matcher) - Appends changed file paths to `.claude/.dirty-files` with zero token cost
-2. **Stop hook** - Fires at end of turn, checks for dirty files, blocks and requests agent spawn if files exist
-3. **memory-updater agent** - Lightweight orchestrator running in isolated context
-4. **memory-processor skill** - Progressive disclosure pattern, loads detailed instructions only when invoked
-
-Key design decisions:
-- Uses `stop_hook_active` flag to prevent infinite loops when stop hook fires after agent completion
-- PostToolUse hook has no output (zero tokens) - purely tracks file paths
-- Agent isolation keeps main conversation context clean
-- Skills use progressive disclosure for token efficiency
-
-## Planned Plugin Structure
-
 ```
-.claude-plugin/
-├── settings.json           # Hook configurations
-├── agents/
-│   └── memory-updater.md   # Lightweight orchestrator
-├── skills/
-│   ├── memory-processor/SKILL.md    # File analysis and CLAUDE.md updates
-│   └── codebase-analyzer/SKILL.md   # Init wizard logic
-├── commands/
-│   ├── memory-init.md      # Interactive setup wizard
-│   ├── memory-sync.md      # Force recalibration
-│   └── memory-status.md    # View sync status
-└── hooks/
-    ├── post-tool-use.sh    # Track file changes
-    └── stop.sh             # End-of-turn trigger
+claude-code-memory/
+├── scripts/           # Python hook scripts
+│   ├── post-tool-use.py  # Tracks edited files to .claude/.dirty-files
+│   └── stop.py           # Blocks stop if dirty files exist, triggers memory-updater
+├── skills/            # Skill definitions (SKILL.md files)
+│   ├── codebase-analyzer/  # Analyzes codebase, generates CLAUDE.md templates
+│   └── memory-processor/   # Processes file changes, updates CLAUDE.md sections
+├── commands/          # Slash commands (markdown files)
+│   ├── memory-init.md     # Initialize CLAUDE.md structure
+│   ├── memory-calibrate.md # Force recalibration
+│   └── memory-status.md   # Show sync status
+├── agents/            # Agent definitions
+│   └── memory-updater.md  # Orchestrates CLAUDE.md updates
+├── hooks/             # Hook configuration
+│   └── hooks.json        # PostToolUse and Stop hook definitions
+└── tests/             # pytest test suite
 ```
 
-## Key Files
+**Data Flow**: Edit/Write -> post-tool-use.py -> .dirty-files -> stop.py -> memory-updater agent -> memory-processor skill -> CLAUDE.md updates
 
-- `PRD.md` - Product requirements, user stories, acceptance criteria
-- `SPEC.md` - Technical specification, component details, data structures
+<!-- END AUTO-MANAGED -->
 
-## Implementation Notes
+<!-- AUTO-MANAGED: conventions -->
+## Code Conventions
 
-When implementing, refer to SPEC.md for:
-- Hook configurations and environment variables (`$CLAUDE_FILE_PATHS`, `$CLAUDE_PROJECT_DIR`)
-- Marker syntax for auto-managed sections (`<!-- AUTO-MANAGED: section-name -->`)
-- Dirty files format (plain text, one path per line)
-- Error handling strategies
-- Dependencies: `jq` for JSON parsing, `node-fetch` and `cheerio` for docs fetching
+- **Python**: Target Python 3.9+, use type hints
+- **Line length**: 100 characters max
+- **Imports**: Sorted with isort (ruff I rules)
+- **Naming**: snake_case for functions/variables, PascalCase for classes
+- **Docstrings**: Triple-quoted, describe purpose at module/function level
+- **Testing**: pytest with test_ prefix, use tmp_path fixture for temp files
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: patterns -->
+## Detected Patterns
+
+- **Hook Scripts**: Produce no stdout output (zero token cost design)
+- **File Filtering**: Exclude `.claude/` directory and CLAUDE.md files to prevent tracking and infinite loops
+- **Bash Command Parsing**: Use `shlex.split()` for robust command tokenization; detect rm, mv, git rm, git mv, unlink operations
+- **Command Skip List**: Filter read-only commands (ls, git diff, npm, etc.) before processing to reduce noise
+- **Path Resolution**: Convert relative paths to absolute using project_dir context, then resolve symlinks
+- **CLAUDE.md Markers**: Use `<!-- AUTO-MANAGED: section-name -->` and `<!-- END AUTO-MANAGED -->` for auto-updated sections
+- **Manual Sections**: Use `<!-- MANUAL -->` markers for user-editable content
+- **Skill Templates**: Use `{{PLACEHOLDER}}` syntax for variable substitution
+- **File Tracking**: Dirty files stored in `.claude/.dirty-files`, one path per line
+- **Test Coverage**: Use subprocess to invoke hooks, verify zero output behavior, test file filtering logic
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: git-insights -->
+## Git Insights
+
+- Main branch workflow
+- Feature branches for new functionality
+- Commit messages describe the change purpose
+
+<!-- END AUTO-MANAGED -->
+
+<!-- AUTO-MANAGED: best-practices -->
+## Best Practices
+
+- Run `uv run pytest` before committing changes
+- Keep hook scripts silent (no output) to minimize token usage
+- Use AUTO-MANAGED markers for sections that should be auto-updated
+- Keep CLAUDE.md under 500 lines; use imports for detailed specs
+- Test hook scripts with subprocess to verify zero output behavior
+
+<!-- END AUTO-MANAGED -->
+
+<!-- MANUAL -->
+## Custom Notes
+
+Add project-specific notes here. This section is never auto-modified.
+
+<!-- END MANUAL -->

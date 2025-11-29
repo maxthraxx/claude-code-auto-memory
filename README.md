@@ -28,7 +28,8 @@ You edit code -> Plugin tracks changes -> Isolated agent updates docs -> Context
 
 ## Features
 
-- **Automatic sync**: Tracks Edit/Write operations and updates CLAUDE.md at end of turn
+- **Automatic sync**: Tracks Edit/Write/Bash operations and updates CLAUDE.md at end of turn
+- **Bash operation tracking**: Detects rm, mv, git rm, git mv, unlink commands
 - **Zero-token tracking**: PostToolUse hook has no output, pure file tracking
 - **Isolated processing**: Agent runs in separate context, doesn't bloat conversation
 - **Marker-based updates**: Only modifies AUTO-MANAGED sections, preserves manual content
@@ -99,7 +100,7 @@ sequenceDiagram
     participant Skill as memory-processor Skill
 
     User->>Claude: Edit files
-    Claude->>PostHook: Edit/Write operation
+    Claude->>PostHook: Edit/Write/Bash operation
     PostHook->>DirtyFiles: Append file path (zero tokens)
     Note over PostHook: No output - pure tracking
 
@@ -126,7 +127,7 @@ sequenceDiagram
 ### Architecture Overview
 
 ```
-PostToolUse Hook (Edit|Write)
+PostToolUse Hook (Edit|Write|Bash)
     |
     v (append file paths)
 .claude/.dirty-files
