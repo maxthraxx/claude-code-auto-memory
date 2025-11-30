@@ -5,9 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- AUTO-MANAGED: project-description -->
 ## Overview
 
-**auto-memory** plugin - automatically maintains CLAUDE.md files as codebases evolve. Tagline: "Your CLAUDE.md, always in sync. Zero tokens. Zero config. Just works."
+**auto-memory** plugin - automatically maintains CLAUDE.md files as codebases evolve. Tagline: "Your CLAUDE.md, always in sync. Minimal tokens. Zero config. Just works."
 
-Watches what you edit, delete, and move, then quietly updates project documentation in the background. Uses PostToolUse hooks to track Edit/Write/Bash operations (including rm, mv, git rm, git mv, unlink), stores changes in .dirty-files, then triggers isolated memory-updater agent to process and update documentation sections with detected patterns, conventions, and architecture insights. Zero manual maintenance needed.
+Watches what you edit, delete, and move, then quietly updates project memory in the background. Uses PostToolUse hooks to track Edit/Write/Bash operations (including rm, mv, git rm, git mv, unlink), stores changes in .dirty-files, then triggers isolated memory-updater agent to process and update memory sections with detected patterns, conventions, and architecture insights. Zero manual maintenance needed.
 
 <!-- END AUTO-MANAGED -->
 
@@ -68,7 +68,7 @@ claude-code-auto-memory/
 <!-- AUTO-MANAGED: patterns -->
 ## Detected Patterns
 
-- **Hook Scripts**: Produce no stdout output (zero token cost design)
+- **Hook Scripts**: Produce no stdout output (minimal token cost design)
 - **File Filtering**: Exclude `.claude/` directory and CLAUDE.md files to prevent tracking and infinite loops
 - **Bash Operation Tracking**: Detects rm, mv, git rm, git mv, unlink commands to track file deletions/moves; use `shlex.split()` for robust command tokenization
 - **Command Skip List**: Filter read-only commands (ls, git diff, npm, etc.) before processing to reduce noise

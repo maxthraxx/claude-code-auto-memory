@@ -8,7 +8,7 @@ requires-python = ">=3.9"
 authors = [
     { name = "severity1" }
 ]
-keywords = ["claude", "claude-code", "plugin", "documentation"]
+keywords = ["claude", "claude-code", "plugin", "memory"]
 dependencies = []
 
 [project.optional-dependencies]

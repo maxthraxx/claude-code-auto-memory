@@ -1,6 +1,6 @@
 ---
 name: memory-processor
-description: Process file changes and update CLAUDE.md documentation sections
+description: Process file changes and update CLAUDE.md memory sections
 ---
 
 # Memory Processor

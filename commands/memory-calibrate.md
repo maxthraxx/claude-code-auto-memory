@@ -3,7 +3,7 @@ name: memory-calibrate
 description: Force recalibration of all CLAUDE.md files
 ---
 
-Force a full recalibration of CLAUDE.md documentation.
+Force a full recalibration of CLAUDE.md memory files.
 
 Invoke the `memory-processor` skill to:
 1. Analyze all tracked source files

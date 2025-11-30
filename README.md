@@ -2,7 +2,7 @@
 
 **Your CLAUDE.md, always in sync.** Minimal tokens. Zero config. Just works.
 
-A Claude Code plugin that watches what Claude Code edits, deletes, and moves - then quietly updates your project documentation in the background. No manual maintenance needed.
+A Claude Code plugin that watches what Claude Code edits, deletes, and moves - then quietly updates your project memory in the background. No manual maintenance needed.
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://claude.ai/code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -13,9 +13,9 @@ A Claude Code plugin that watches what Claude Code edits, deletes, and moves - t
 
 CLAUDE.md files become stale as codebases evolve:
 
-- Build commands change but documentation stays outdated
+- Build commands change but memory stays outdated
 - Architecture shifts go unrecorded
-- Code conventions drift without documentation
+- Code conventions drift without memory updates
 - New team members get incorrect context
 
 **Manual maintenance is tedious and often forgotten.**
@@ -25,7 +25,7 @@ CLAUDE.md files become stale as codebases evolve:
 claude-code-auto-memory automatically updates CLAUDE.md when Claude Code makes changes. Processing happens in an isolated agent, so it doesn't consume your main conversation's context window.
 
 ```
-Claude Code edits code -> Plugin tracks changes -> Isolated agent updates docs -> Context stays fresh
+Claude Code edits code -> Plugin tracks changes -> Isolated agent updates memory -> Context stays fresh
 ```
 
 ## Features
@@ -241,4 +241,4 @@ MIT
 
 ---
 
-**Keywords**: Claude Code plugin, CLAUDE.md, automatic documentation, memory management, context persistence, token-efficient, zero-config, monorepo, AI coding assistant
+**Keywords**: Claude Code plugin, CLAUDE.md, automatic memory, memory management, context persistence, token-efficient, zero-config, monorepo, AI coding assistant
