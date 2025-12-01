@@ -441,8 +441,11 @@ class TestStopHook:
             text=True,
         )
         output = json.loads(result.stdout)
-        # Count commas + 1 = number of files (should be <= 20)
-        file_count = output["reason"].count(",") + 1
+        # Extract the file list portion and count files
+        reason = output["reason"]
+        # Files are listed after "changed files: " and before the next sentence
+        files_part = reason.split("changed files: ")[1].split("'.")[0]
+        file_count = files_part.count(",") + 1
         assert file_count <= 20
 
     def test_handles_invalid_json_input(self, tmp_path):

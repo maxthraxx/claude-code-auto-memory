@@ -5,6 +5,8 @@ Fires after Edit, Write, or Bash tool execution. Appends changed file
 paths to .claude/.dirty-files for batch processing at turn end.
 Produces no output to maintain zero token cost.
 """
+from __future__ import annotations
+
 import json
 import os
 import re

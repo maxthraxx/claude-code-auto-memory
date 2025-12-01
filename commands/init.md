@@ -1,8 +1,8 @@
 ---
-description: Initialize CLAUDE.md structure for project with interactive wizard
+description: Initialize CLAUDE.md memory structure for project with interactive wizard
 ---
 
-Initialize auto-managed CLAUDE.md files for this project.
+Initialize auto-managed CLAUDE.md memory files for this project.
 
 Invoke the `codebase-analyzer` skill to:
 1. Analyze the codebase structure

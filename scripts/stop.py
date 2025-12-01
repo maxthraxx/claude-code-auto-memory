@@ -47,7 +47,8 @@ def main():
         "reason": (
             f"Files were modified this turn. Use the Task tool to spawn "
             f"'memory-updater' agent with prompt: 'Update CLAUDE.md for "
-            f"changed files: {files_str}'"
+            f"changed files: {files_str}'. After the agent completes, use the "
+            f"Read tool to read the root CLAUDE.md file to refresh your memory."
         ),
     }
     print(json.dumps(output))

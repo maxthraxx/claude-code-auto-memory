@@ -119,7 +119,7 @@ class TestCommandsConfiguration:
 
     @pytest.fixture
     def commands_dir(self):
-        return PROJECT_ROOT / "commands" / "auto-memory"
+        return PROJECT_ROOT / "commands"
 
     def test_init_exists(self, commands_dir):
         """init command exists."""
@@ -137,7 +137,6 @@ class TestCommandsConfiguration:
         """All commands have valid YAML frontmatter."""
         for cmd_file in commands_dir.glob("*.md"):
             frontmatter = parse_markdown_frontmatter(cmd_file)
-            assert "name" in frontmatter, f"{cmd_file.name} missing name"
             assert "description" in frontmatter, f"{cmd_file.name} missing description"
 
 

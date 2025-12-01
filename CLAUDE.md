@@ -62,6 +62,7 @@ claude-code-auto-memory/
 - **Docstrings**: Triple-quoted, describe purpose at module/function level
 - **Testing**: pytest with test_ prefix and `test_*` function names, fixtures in conftest or test class methods
 - **Type checking**: Enabled with mypy in strict mode
+- **Command YAML**: Frontmatter requires `description` field; `name` field is optional (derived from filename)
 
 <!-- END AUTO-MANAGED -->
 
@@ -77,6 +78,7 @@ claude-code-auto-memory/
 - **Manual Sections**: Use `<!-- MANUAL -->` markers for user-editable content
 - **Skill Templates**: Use `{{PLACEHOLDER}}` syntax for variable substitution
 - **File Tracking**: Dirty files stored in `.claude/.dirty-files`, one path per line
+- **Stop Hook UX**: Instructs Claude to read root CLAUDE.md after agent completes to refresh context
 - **Test Coverage**: Use subprocess to invoke hooks, verify zero output behavior, test file filtering logic
 
 <!-- END AUTO-MANAGED -->

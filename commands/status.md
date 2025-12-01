@@ -1,8 +1,8 @@
 ---
-description: Show CLAUDE.md sync status
+description: Show CLAUDE.md memory sync status
 ---
 
-Display the current status of CLAUDE.md synchronization.
+Display the current status of CLAUDE.md memory synchronization.
 
 Check and report:
 1. **Pending changes**: Count of files in `.claude/.dirty-files` awaiting processing
