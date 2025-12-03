@@ -1,0 +1,2 @@
+Testing inline commit context format.
+This file should be tracked with commit hash and message inline.
