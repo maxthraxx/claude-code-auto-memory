@@ -51,7 +51,7 @@ claude-code-auto-memory/
 **Data Flow**: Edit/Write/Bash (rm, mv, git rm, git mv, unlink) -> post-tool-use.py -> .claude/auto-memory/dirty-files -> stop.py -> memory-updater agent -> memory-processor skill -> CLAUDE.md updates
 
 **State Files** (in `.claude/auto-memory/`):
-- `dirty-files` - Pending file list with optional inline commit context
+- `dirty-files` - Pending file list with optional inline commit context format: `/path [hash: message]`
 - `config.json` - Trigger mode configuration (default or gitmode)
 
 <!-- END AUTO-MANAGED -->
@@ -86,7 +86,7 @@ claude-code-auto-memory/
 - **Trigger Modes**: Config-driven behavior - `default` mode tracks all Edit/Write/Bash operations; `gitmode` only triggers on git commits; default mode used if config missing
 - **Git Commit Enrichment**: When git commit detected, enriches each file path with inline commit context for semantic context during updates
 - **Stop Hook UX**: Blocks at turn end if dirty files exist; instructs Claude to spawn memory-updater agent using Task tool with formatted file list; suggests reading root CLAUDE.md after agent completes to refresh context
-- **Memory-Updater Agent**: Orchestrates CLAUDE.md updates through 6-phase workflow - load dirty files (parsing inline commit context), gather file context with imports, extract git insights, discover CLAUDE.md targets, invoke memory-processor skill, cleanup dirty-files; processes max 7 files per run with truncated git diffs; designed for minimal token consumption in isolated context
+- **Memory-Updater Agent**: Orchestrates CLAUDE.md updates through 6-phase workflow using sonnet model - load dirty files (parsing inline commit context format `/path [hash: message]`), gather file context with imports, extract git insights, discover CLAUDE.md targets, invoke memory-processor skill, cleanup dirty-files; processes max 7 files per run with truncated git diffs; designed for minimal token consumption in isolated context
 - **Memory Processor Updates**: Skill analyzes changed files and updates relevant AUTO-MANAGED sections with detected patterns, architecture changes, and new commands; follows content rules (specific, concise, structured); preserves manual sections and maintains < 500 line target
 - **Test Coverage**: Use subprocess to invoke hooks, verify zero output behavior, test file filtering logic
 

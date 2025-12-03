@@ -1,2 +1,0 @@
-Testing default trigger mode.
-This file should be tracked immediately on Write, not waiting for git commit.
