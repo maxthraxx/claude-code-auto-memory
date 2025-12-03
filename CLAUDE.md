@@ -82,7 +82,7 @@ claude-code-auto-memory/
 - **CLAUDE.md Markers**: Use `<!-- AUTO-MANAGED: section-name -->` and `<!-- END AUTO-MANAGED -->` for auto-updated sections
 - **Manual Sections**: Use `<!-- MANUAL -->` markers for user-editable content
 - **Skill Templates**: Use `{{PLACEHOLDER}}` syntax for variable substitution
-- **File Tracking**: Dirty files stored in `.claude/auto-memory/dirty-files`, one path per line with optional inline commit context: `/path/to/file [hash: message]`
+- **File Tracking**: Dirty files stored in `.claude/auto-memory/dirty-files`, one path per line with optional inline commit context: `/path/to/file [hash: message]`; deduplication logic updates existing entries with commit context instead of creating duplicates
 - **Trigger Modes**: Config-driven behavior - `default` mode tracks all Edit/Write/Bash operations; `gitmode` only triggers on git commits; default mode used if config missing
 - **Git Commit Enrichment**: When git commit detected, enriches each file path with inline commit context for semantic context during updates
 - **Stop Hook UX**: Blocks at turn end if dirty files exist; instructs Claude to spawn memory-updater agent using Task tool with formatted file list; suggests reading root CLAUDE.md after agent completes to refresh context

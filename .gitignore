@@ -30,4 +30,4 @@ htmlcov/
 Thumbs.db
 
 # Project specific
-.claude/.dirty-files
+dirty-files
