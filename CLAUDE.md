@@ -82,13 +82,14 @@ claude-code-auto-memory/
 - **CLAUDE.md Markers**: Use `<!-- AUTO-MANAGED: section-name -->` and `<!-- END AUTO-MANAGED -->` for auto-updated sections
 - **Manual Sections**: Use `<!-- MANUAL -->` markers for user-editable content
 - **Skill Templates**: Use `{{PLACEHOLDER}}` syntax for variable substitution
-- **File Tracking**: Dirty files stored in `.claude/auto-memory/dirty-files`, one path per line with optional inline commit context: `/path/to/file [hash: message]`; deduplication logic updates existing entries with commit context instead of creating duplicates
+- **File Tracking**: Dirty files stored in `.claude/auto-memory/dirty-files`, one path per line with optional inline commit context: `/path/to/file [hash: message]`
+- **Deduplication Logic**: Read dirty-files into dict (path -> full line), update existing entries with commit context instead of appending duplicates; commit context always overwrites plain path entries; format string extracted to separate variable for code clarity
 - **Trigger Modes**: Config-driven behavior - `default` mode tracks all Edit/Write/Bash operations; `gitmode` only triggers on git commits; default mode used if config missing
 - **Git Commit Enrichment**: When git commit detected, enriches each file path with inline commit context for semantic context during updates
 - **Stop Hook UX**: Blocks at turn end if dirty files exist; instructs Claude to spawn memory-updater agent using Task tool with formatted file list; suggests reading root CLAUDE.md after agent completes to refresh context
 - **Memory-Updater Agent**: Orchestrates CLAUDE.md updates through 6-phase workflow using sonnet model - load dirty files (parsing inline commit context format `/path [hash: message]`), gather file context with imports, extract git insights, discover CLAUDE.md targets, invoke memory-processor skill, cleanup dirty-files; processes max 7 files per run with truncated git diffs; designed for minimal token consumption in isolated context
-- **Memory Processor Updates**: Skill analyzes changed files and updates relevant AUTO-MANAGED sections with detected patterns, architecture changes, and new commands; follows content rules (specific, concise, structured); preserves manual sections and maintains < 500 line target
-- **Test Coverage**: Use subprocess to invoke hooks, verify zero output behavior, test file filtering logic
+- **Memory Processor Updates**: Skill analyzes changed files and updates relevant AUTO-MANAGED sections with detected patterns, architecture changes, and new commands; follows content rules (specific, concise, structured); preserves manual sections and maintains < 500 line target; excludes moving targets (version numbers, test counts, dates, metrics) that become stale
+- **Test Coverage**: Use subprocess to invoke hooks, verify zero output behavior, test file filtering logic; TestGitCommitContext class verifies git commit handling, file extraction, and commit context enrichment; initialize test git repos with initial commit for diff-tree parent reference
 
 <!-- END AUTO-MANAGED -->
 
